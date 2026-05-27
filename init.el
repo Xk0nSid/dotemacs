@@ -71,6 +71,12 @@
  (kbd "C-x C-b")
  #'ibuffer)
 
+(setq project-switch-commands
+      '((project-find-file "Find File")
+        (consult-ripgrep "Ripgrep")
+        (consule-project-buffer "Buffers")
+        (project-dired "Dired")))
+
 ;; Package system
 (require 'package)
 
@@ -184,7 +190,9 @@
   :init
   (setq eglot-extend-to-xref t)
   :hook
-  ((go-ts-mode . eglot-ensure)))
+  ((go-ts-mode . eglot-ensure)
+   (typescript-ts-mode . eglot-ensure)
+   (tsx-ts-mode . eglot-ensure)))
 
 (add-hook 'eglot-managed-mode-hook
           (lambda ()
@@ -277,6 +285,14 @@
 
 (add-hook 'go-ts-mode-hook #'xks-go-mode-setup)
 ;; End == Golang ==
+
+;; == Typescript ==
+(add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+
+(setq-default js-indent-level 2)
+(setq-default typescript-ts-mode-indent-offset 2)
+;; END == Typescript ==
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
