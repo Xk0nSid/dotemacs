@@ -192,7 +192,8 @@
   :hook
   ((go-ts-mode . eglot-ensure)
    (typescript-ts-mode . eglot-ensure)
-   (tsx-ts-mode . eglot-ensure)))
+   (tsx-ts-mode . eglot-ensure))
+   (zig-mode . eglot-ensure))
 
 (add-hook 'eglot-managed-mode-hook
           (lambda ()
@@ -268,6 +269,18 @@
 ;; ===============
 ;; Languages
 ;; ===============
+
+;; == Zig ==
+(use-package zig-mode)
+(add-hook 'zig-mode-hook
+          (lambda ()
+            (add-hook 'before-save-hook
+                      #'eglot-format-buffer nil t)))
+(add-hook 'zig-mode-hook
+          (lambda ()
+            (setq-local tab-width 4)
+            (setq-local indent-tabs-mode nil)))
+;; END == Zig ==
 
 ;; == Golang ==
 (add-to-list 'major-mode-remap-alist
