@@ -182,7 +182,9 @@
         (python "https://github.com/tree-sitter/tree-sitter-python")
         (rust   "https://github.com/tree-sitter/tree-sitter-rust")
         (toml   "https://github.com/tree-sitter/tree-sitter-toml")
-        (yaml   "https://github.com/ikatyang/tree-sitter-yaml")))
+        (yaml   "https://github.com/ikatyang/tree-sitter-yaml")
+        (typescript   "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")))
 
 (setq treesit-font-lock-level 4)
 
@@ -255,11 +257,13 @@
       "g" '(:ignore t :which-key "git")
       "gs" '(magit-status :which-key "status")))
 
-(use-package catppuccin-theme
-  :init
-  (setq catppuccin-flavor 'mocha)
+;; Themes / UI
+
+(use-package kanagawa-themes
+  :ensure t
   :config
-  (load-theme 'catppuccin t))
+  (load-theme 'kanagawa-wave t))
+
 
 ;; modeline
 (use-package doom-modeline
@@ -300,22 +304,31 @@
 ;; End == Golang ==
 
 ;; == Typescript ==
+
+(use-package prettier
+  :ensure t)
+
+(defun xks/typescript-style ()
+  (setq-local tab-width 2)
+  (setq-local standard-indent 2)
+  (setq-local typescript-ts-mode-indent-offset 2)
+  (setq-local js-indent-level 2)
+  (setq-local evil-shift-width 2)
+  (setq-local indent-tabs-mode nil))
+
+(add-hook 'typescript-ts-mode #'xks/typescript-style)
+(add-hook 'tsx-ts-mode #'xks/typescript-style)
+(add-hook 'js-ts-mode #'xks/typescript-style)
+
+(add-hook 'typescript-ts-mode #'eglot-ensure)
+(add-hook 'tsx-ts-mode #'eglot-ensure)
+
+;; prettier
+(add-hook 'typescript-ts-mode #'prettier-mode)
+(add-hook 'tsx-ts-mode #'prettier-mode)
+
 (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
-
-(setq-default js-indent-level 2)
-(setq-default typescript-ts-mode-indent-offset 2)
 ;; END == Typescript ==
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
