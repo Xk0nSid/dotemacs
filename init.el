@@ -41,7 +41,7 @@
 (setq auto-save-default nil)
 
 ;; display tabs and extra whitespaces
-(setq whitespace-style '(face tabs trailing))
+(setq whitespace-style '(face trailing))
 (global-whitespace-mode 1)
 
 ;; Make ESC quit prompts
@@ -65,6 +65,11 @@
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
 (setq tab-always-indent t)
+
+;; handle annoying `custom-set-variables` in `init.el`
+(setq custom-file
+      (expand-file-name "custom.el" user-emacs-directory))
+(load custom-file 'noerror)
 
 ;; Better buffer management
 (global-set-key
@@ -99,6 +104,17 @@
 
 (setq use-package-always-ensure t)
 
+;; dired
+
+;; disable new buffer creation while navigating
+;; in dired mode
+(setq dired-kill-when-opening-new-dired-buffer t)
+(put 'dired-find-alternate-file 'disabled nil)
+(with-eval-after-load 'dired
+  (define-key dired-mode-map
+              (kbd "RET")
+              #'dired-find-alternate-file))
+
 ;; evil mode
 (use-package evil
   :init
@@ -110,7 +126,15 @@
   (setq evil-split-window-below t)
 
   :config
-  (evil-mode 1))
+  (evil-mode 1)
+  ;; Prevent yanks and deletes from modifying the system clipboard
+  (setq select-enable-clipboard nil)
+
+  ;; Prevent visual selections from modifying the X11 primary selection (Linux)
+  (setq select-enable-primary nil)
+
+  ;; Prevent mouse selection from auto-copying to the clipboard
+  (setq mouse-drag-copy-region nil))
 
 (use-package evil-collection
   :after evil
@@ -183,7 +207,7 @@
         (rust   "https://github.com/tree-sitter/tree-sitter-rust")
         (toml   "https://github.com/tree-sitter/tree-sitter-toml")
         (yaml   "https://github.com/ikatyang/tree-sitter-yaml")
-        (typescript   "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
         (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")))
 
 (setq treesit-font-lock-level 4)
@@ -246,29 +270,56 @@
       "b" '(:ignore t :which-key "buffers")
       "bb" '(consult-buffer :which-key "switch")
       "bk" '(kill-current-buffer :which-key "kill")
+      "be" '(eval-buffer :which-key "eval")
 
       ;; projects
       "p" '(:ignore t :which-key "project")
       "pf" '(project-find-file :which-key "find file")
       "pg" '(consult-ripgrep :which-key "grep")
       "pb" '(consult-project-buffer :which-key "buffers")
+      "pp" '(wt-find-project :which-key "Find Worktree Project")
 
       ;; git
       "g" '(:ignore t :which-key "git")
       "gs" '(magit-status :which-key "status")))
 
+;; compile mode colors
+(defun xks/colorize-compilation-buffer ()
+  (ansi-color-apply-on-region
+   compilation-filter-start
+   (point)))
+
+(use-package ansi-color
+  :ensure t
+  :hook
+  (compilation-filter . xks/colorize-compilation-buffer))
+
+(use-package golden-ratio
+  :config
+  (golden-ratio-mode 1))
+
+(use-package vertico-posframe
+  :config
+  (vertico-posframe-mode 1))
+
 ;; Themes / UI
 
-(use-package kanagawa-themes
+(use-package doom-themes
   :ensure t
   :config
-  (load-theme 'kanagawa-wave t))
+  (load-theme 'doom-one t))
 
+(use-package kanagawa-themes
+  :ensure t)
 
 ;; modeline
 (use-package doom-modeline
   :init
   (doom-modeline-mode 1))
+
+(use-package solaire-mode
+  :config
+  (solaire-global-mode +1))
 
 ;; ===============
 ;; Languages
@@ -316,12 +367,12 @@
   (setq-local evil-shift-width 2)
   (setq-local indent-tabs-mode nil))
 
-(add-hook 'typescript-ts-mode #'xks/typescript-style)
-(add-hook 'tsx-ts-mode #'xks/typescript-style)
-(add-hook 'js-ts-mode #'xks/typescript-style)
+(add-hook 'typescript-ts-mode-hook #'xks/typescript-style)
+(add-hook 'tsx-ts-mode-hook #'xks/typescript-style)
+(add-hook 'js-ts-mode-hook #'xks/typescript-style)
 
-(add-hook 'typescript-ts-mode #'eglot-ensure)
-(add-hook 'tsx-ts-mode #'eglot-ensure)
+(add-hook 'typescript-ts-mode-hook #'eglot-ensure)
+(add-hook 'tsx-ts-mode-hook #'eglot-ensure)
 
 ;; prettier
 (add-hook 'typescript-ts-mode #'prettier-mode)
@@ -331,4 +382,24 @@
 (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
 ;; END == Typescript ==
 
+;; == Org Mode ==
 
+(use-package org-modern
+  :hook
+  (org-mode . org-modern-mode))
+
+(use-package mixed-pitch
+  :ensure t)
+
+(add-hook 'org-mode-hook #'mixed-pitch-mode)
+
+(with-eval-after-load 'org
+  (set-face-attribute 'org-level-1 nil :height 1.25 :weight 'bold)
+  (set-face-attribute 'org-level-2 nil :height 1.15 :weight 'bold)
+  (set-face-attribute 'org-level-3 nil :height 1.08 :weight 'bold))
+
+(setq org-hide-emphasis-markers t)
+
+;; END == Org Mode ==
+
+(setq warning-minimum-level :error)
