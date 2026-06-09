@@ -253,6 +253,9 @@
     :global-prefix "C-SPC")
     ;; leader keymaps
     (xks/leader
+      ;; quit
+      "q" '(:ignore t :which-key "Quit")
+      "qq" '(delete-frame :which-key "Quit Frame")
       ;; errors
       "e" '(:ignore t :which-key "errors")
       "en" '(flymake-goto-next-error :which-key "next")
