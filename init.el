@@ -51,9 +51,18 @@
 (add-to-list 'default-frame-alist
              '(fullscreen . maximized))
 
-(set-face-attribute 'default nil
-                    :font "JetBrainsMono Nerd Font"
-                    :height 120)
+(defun xks/setup-fonts (&optional frame)
+  (with-selected-frame (or frame (selected-frame))
+    (when (display-graphic-p)
+      (set-face-attribute 'default nil
+                          :font "0xProto"
+                          :height 130))))
+
+(add-to-list 'default-frame-alist
+             '(font . "Roboto Mono-14"))
+
+(add-hook 'after-make-frame-functions
+          #'xks/setup-fonts)
 
 ;; Better frame title
 (setq frame-title-format "%b")
