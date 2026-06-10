@@ -47,10 +47,7 @@
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
-;; Start maximized
-(add-to-list 'default-frame-alist
-             '(fullscreen . maximized))
-
+;; Font setup
 (defun xks/setup-fonts (&optional frame)
   (with-selected-frame (or frame (selected-frame))
     (when (display-graphic-p)
@@ -59,10 +56,10 @@
                           :height 130))))
 
 (add-to-list 'default-frame-alist
-             '(font . "Roboto Mono-14"))
+             '(fullscreen . maximized))
 
-(add-hook 'after-make-frame-functions
-          #'xks/setup-fonts)
+(add-hook 'after-make-frame-functions #'xks/setup-fonts)
+(add-hook 'after-init-hook #'xks/setup-fonts)
 
 ;; Better frame title
 (setq frame-title-format "%b")
@@ -93,6 +90,8 @@
 
 ;; Package system
 (require 'package)
+
+(setq package-native-compile t)
 
 (setq package-archives
       '(("melpa" . "https://melpa.org/packages/")
@@ -254,8 +253,8 @@
     ;; leader keymaps
     (xks/leader
       ;; quit
-      "q" '(:ignore t :which-key "Quit")
-      "qq" '(delete-frame :which-key "Quit Frame")
+      "w" '(:ignore t :which-key "Window/Frame")
+      "wc" '(delete-frame :which-key "Close Frame")
       ;; errors
       "e" '(:ignore t :which-key "errors")
       "en" '(flymake-goto-next-error :which-key "next")
@@ -332,6 +331,11 @@
 (use-package solaire-mode
   :config
   (solaire-global-mode +1))
+
+(use-package rainbow-identifiers
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook 'rainbow-identifiers-mode))
 
 ;; ===============
 ;; Languages
