@@ -211,6 +211,7 @@
         (go     "https://github.com/tree-sitter/tree-sitter-go")
         (gomod  "https://github.com/camdencheek/tree-sitter-go-mod")
         (json   "https://github.com/tree-sitter/tree-sitter-json")
+        (odin "https://github.com/tree-sitter-grammars/tree-sitter-odin")
         (python "https://github.com/tree-sitter/tree-sitter-python")
         (rust   "https://github.com/tree-sitter/tree-sitter-rust")
         (toml   "https://github.com/tree-sitter/tree-sitter-toml")
@@ -225,9 +226,12 @@
   (setq eglot-extend-to-xref t)
   :hook
   ((go-ts-mode . eglot-ensure)
+   (odin-ts-mode . eglot-ensure)
    (typescript-ts-mode . eglot-ensure)
-   (tsx-ts-mode . eglot-ensure))
-   (zig-mode . eglot-ensure))
+   (tsx-ts-mode . eglot-ensure)
+   (zig-mode . eglot-ensure)
+   (c-mode . eglot-ensure)
+   (c-ts-mode . eglot-ensure)))
 
 (add-hook 'eglot-managed-mode-hook
           (lambda ()
@@ -313,6 +317,22 @@
   :config
   (vertico-posframe-mode 1))
 
+(winner-mode 1)
+
+(defun xks/toggle-maximize-window ()
+  (interactive)
+  (if (= 1 (length (window-list)))
+      (winner-undo)
+    (delete-other-windows)))
+
+(define-key evil-window-map (kbd "m") #'xks/toggle-maximize-window)
+
+(use-package expand-region
+  :ensure t
+  :config
+  (global-set-key (kbd "C-=") 'er/expand-region)
+  (global-set-key (kbd "C--") 'er/contract-region))
+
 ;; Themes / UI
 
 (use-package doom-themes
@@ -355,7 +375,8 @@
 
 ;; == Golang ==
 (add-to-list 'major-mode-remap-alist
-             '(go-mode . go-ts-mode))
+             '(go-mode . go-ts-mode)
+             '(c-mode . c-ts-mode))
 
 (defun xks/go-format-buffer ()
   (when (derived-mode-p 'go-ts-mode)
@@ -369,6 +390,11 @@
 
 (add-hook 'go-ts-mode-hook #'xks-go-mode-setup)
 ;; End == Golang ==
+
+;; == Odin ==
+(load-file (expand-file-name "odin-ts-mode/odin-ts-mode.el" user-emacs-directory))
+(add-to-list 'auto-mode-alist '("\\.odin\\'" . odin-ts-mode))
+;; End == Odin ==
 
 ;; == Typescript ==
 
