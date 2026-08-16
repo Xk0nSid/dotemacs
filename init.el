@@ -274,29 +274,7 @@
       "dn" '(dape-next :which-key "next")
       "di" '(dape-step-in :which-key "step in")
       "do" '(dape-step-out :which-key "step out")
-      "dr" '(dape-restart :which-key "restart")
-
-      ;; files
-      "f" '(:ignore t :which-key "files")
-      "ff" '(find-file :which-key "find file")
-      "fr" '(consult-recent-file :which-key "recent")
-
-      ;; buffers
-      "b" '(:ignore t :which-key "buffers")
-      "bb" '(consult-buffer :which-key "switch")
-      "bk" '(kill-current-buffer :which-key "kill")
-      "be" '(eval-buffer :which-key "eval")
-
-      ;; projects
-      "p" '(:ignore t :which-key "project")
-      "pf" '(project-find-file :which-key "find file")
-      "pg" '(consult-ripgrep :which-key "grep")
-      "pb" '(consult-project-buffer :which-key "buffers")
-      "pp" '(wt-find-project :which-key "Find Worktree Project")
-
-      ;; git
-      "g" '(:ignore t :which-key "git")
-      "gs" '(magit-status :which-key "status")))
+      "dr" '(dape-restart :which-key "restart")))
 
 ;; compile mode colors
 (defun xks/colorize-compilation-buffer ()
@@ -335,18 +313,25 @@
 
 ;; Themes / UI
 
-(use-package doom-themes
+(use-package modus-themes
   :ensure t
   :config
-  (load-theme 'doom-one t))
+  ;; Your customizations here.  All customizations must be evaluated
+  ;; BEFORE loading the theme.  Reload the theme for new customizations
+  ;; to take effect.
+  (setq modus-themes-italic-constructs t
+        modus-themes-mixed-font t
+        modus-themes-bold-constructs nil)
 
-(use-package kanagawa-themes
-  :ensure t)
+  (modus-themes-load-theme 'modus-operandi)
 
-;; modeline
-(use-package doom-modeline
-  :init
-  (doom-modeline-mode 1))
+  (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
+
+(use-package moody
+  :config
+  (moody-replace-mode-line-front-space)
+  (moody-replace-mode-line-buffer-identification)
+  (moody-replace-vc-mode))
 
 (use-package solaire-mode
   :config
