@@ -24,6 +24,8 @@
             (lambda ()
               (display-line-numbers-mode 0))))
 
+(setq warning-minimum-level :error)
+
 ;; highlight current line
 (global-hl-line-mode 1)
 
@@ -53,7 +55,7 @@
     (when (display-graphic-p)
       (set-face-attribute 'default nil
                           :font "0xProto"
-                          :height 130))))
+                          :height 110))))
 
 (add-to-list 'default-frame-alist
              '(fullscreen . maximized))
@@ -323,7 +325,7 @@
         modus-themes-mixed-font t
         modus-themes-bold-constructs nil)
 
-  (modus-themes-load-theme 'modus-operandi)
+  (modus-themes-load-theme 'modus-vivendi-tinted)
 
   (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
 
@@ -429,4 +431,29 @@
 
 ;; END == Org Mode ==
 
-(setq warning-minimum-level :error)
+;; Avy
+(use-package avy
+  :ensure t
+  :bind (("C-;" . avy-goto-char)
+         ("C-'" . avy-goto-char-2))
+  :config
+  (setq avy-all-windows t))
+
+;; Ghostel
+(use-package ghostel
+  :ensure t)
+
+(use-package evil-ghostel
+  :after (ghostel evil)
+  :hook (ghostel-mode . evil-ghostel-mode))
+
+;; Project Root Terminal
+(defun xks/project-term ()
+  (interactive)
+  (let ((default-directory
+         (if-let ((project (project-current)))
+             (project-root project)
+           default-directory)))
+    (ghostel)))
+
+(keymap-set project-prefix-map "t" #'xks/project-term)
