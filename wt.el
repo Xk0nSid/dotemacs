@@ -11,7 +11,7 @@
   "Git worktree management."
   :group 'tools)
 
-(defcustom wt-projects-directory "~/workspace/clv"
+(defcustom wt-projects-directory "~/workspace/projects"
   "Directory containing Git repositories."
   :type 'directory
   :group 'wt)
