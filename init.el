@@ -236,21 +236,21 @@
       "w" '(:ignore t :which-key "Window/Frame")
       "wc" '(delete-frame :which-key "Close Frame")
       ;; errors
-      "e" '(:ignore t :which-key "errors")
-      "en" '(flymake-goto-next-error :which-key "next")
-      "ep" '(flymake-goto-prev-error :which-key "previous")
-      "el" '(flymake-show-buffer-diagnostics :which-key "list")
+      ;; "e" '(:ignore t :which-key "errors")
+      ;; "en" '(flymake-goto-next-error :which-key "next")
+      ;; "ep" '(flymake-goto-prev-error :which-key "previous")
+      ;; "el" '(flymake-show-buffer-diagnostics :which-key "list")
 
       ;; debug
-      "d" '(:ignore t :which-key "debug")
-      "dq" '(dape-quit :which-key "quit")
-      "db" '(dape-breakpoint-toggle :which-key "toggle breakpoint")
-      "ds" '(dape :which-key "start debugging")
-      "dc" '(dape-continue :which-key "continue")
-      "dn" '(dape-next :which-key "next")
-      "di" '(dape-step-in :which-key "step in")
-      "do" '(dape-step-out :which-key "step out")
-      "dr" '(dape-restart :which-key "restart")
+      ;; "d" '(:ignore t :which-key "debug")
+      ;; "dq" '(dape-quit :which-key "quit")
+      ;; "db" '(dape-breakpoint-toggle :which-key "toggle breakpoint")
+      ;; "ds" '(dape :which-key "start debugging")
+      ;; "dc" '(dape-continue :which-key "continue")
+      ;; "dn" '(dape-next :which-key "next")
+      ;; "di" '(dape-step-in :which-key "step in")
+      ;; "do" '(dape-step-out :which-key "step out")
+      ;; "dr" '(dape-restart :which-key "restart")
 
       ;; files
       "f" '(:ignore t :which-key "files")
@@ -273,6 +273,18 @@
       ;; git
       "g" '(:ignore t :which-key "git")
       "gs" '(magit-status :which-key "status")))
+
+;;; ==========================================================
+;;; Move Text
+;;; ==========================================================
+
+(use-package move-text
+  :ensure t
+  :config
+  (define-key evil-normal-state-map (kbd "M-j") #'move-text-down)
+  (define-key evil-normal-state-map (kbd "M-k") #'move-text-up)
+  (define-key evil-visual-state-map (kbd "M-j") #'move-text-down)
+  (define-key evil-visual-state-map (kbd "M-k") #'move-text-up))
 
 ;;; ==========================================================
 ;;; Git
@@ -308,6 +320,7 @@
   (setq eglot-extend-to-xref t)
   :hook
   ((go-ts-mode . eglot-ensure)
+   (c-ts-mode . eglot-ensure)
    (odin-ts-mode . eglot-ensure)
    (typescript-ts-mode . eglot-ensure)
    (tsx-ts-mode . eglot-ensure)
@@ -336,7 +349,8 @@
 
 (use-package eldoc-box
   :ensure t
-  :hook (eglot-managed-mode . eldoc-box-hover-at-point-mode)
+  :bind
+  (("C-c h" . eldoc-box-help-at-point))
   :custom
   (eldoc-box-only-multi-line t))
 
@@ -434,7 +448,7 @@
   ;; - Visit <https://protesilaos.com/emacs/ef-themes#h:6585235a-5219-4f78-9dd5-6a64d87d1b6e>
   (ef-themes-take-over-modus-themes-mode 1)
   :bind
-  (("<f5>" . modus-themes-rotate)
+  (("<f5>" . modus-themes-toggle)
    ("C-<f5>" . modus-themes-select)
    ("M-<f5>" . modus-themes-load-random))
   :config
@@ -443,7 +457,7 @@
   (setq modus-themes-italic-constructs t)
 
   ;; load theme
-  (modus-themes-load-theme 'ef-owl))
+  (modus-themes-load-theme 'ef-dark))
 
 ;;; ==========================================================
 ;;; Languages
@@ -462,57 +476,47 @@
 ;; END == Zig ==
 
 ;; == C ==
-(defun c-lineup-arglist-tabs-only (ignored)
-  "Line up argument lists by tabs, not spaces"
-  (let* ((anchor (c-langelem-pos c-syntactic-element))
-         (column (c-langelem-2nd-pos c-syntactic-element))
-         (offset (- (1+ column) anchor))
-         (steps (floor offset c-basic-offset)))
-    (* (max steps 1)
-       c-basic-offset)))
-
-(c-add-style
- "linux-tabs-only"
- '((c-basic-offset . 4)
-   (c-label-minimum-indentation . 0)
-   (c-offsets-alist . (
-        (arglist-close         . c-lineup-arglist-tabs-only)
-        (arglist-cont-nonempty .
-            (c-lineup-gcc-asm-reg c-lineup-arglist-tabs-only))
-        (arglist-intro         . +)
-        (brace-list-intro      . +)
-        (c                     . c-lineup-C-comments)
-        (case-label            . 0)
-        (comment-intro         . c-lineup-comment)
-        (cpp-define-intro      . +)
-        (cpp-macro             . -1000)
-        (cpp-macro-cont        . +)
-        (defun-block-intro     . +)
-        (else-clause           . 0)
-        (func-decl-cont        . +)
-        (inclass               . +)
-        (inher-cont            . c-lineup-multi-inher)
-        (knr-argdecl-intro     . 0)
-        (label                 . -1000)
-        (statement             . 0)
-        (statement-block-intro . +)
-        (statement-case-intro  . +)
-        (statement-cont        . +)
-        (substatement          . +)
-        ))))
-
-(setq c-default-style
-      '((c-mode . "linux-tabs-only")
-        (c++-mode . "linux-tabs-only")
-        (other . "gnu")))
 
 (defun xks/c-style ()
-  (setq indent-tabs-mode t)
-  (setq show-trailing-whitespace t)
-  (setq tab-width 4))
+  (setq-local c-ts-mode-indent-offset 4)
+  (setq-local tab-width 4)
+  (setq-local indent-tabs-mode nil)
+  (setq-local show-trailing-whitespace t))
 
 (add-hook 'c-mode-hook #'xks/c-style)
 (add-hook 'c-ts-mode-hook #'xks/c-style)
+
+(defun xks/flycheck-hide-annotations (&rest _)
+  (when (bound-and-true-p flycheck-annotate-mode)
+    (flycheck-annotate-mode -1)))
+
+(defun xks/flycheck-show-annotations ()
+  (when (and (bound-and-true-p flycheck-mode)
+             (not (bound-and-true-p flycheck-annotate-mode)))
+    (flycheck-annotate-mode 1)))
+
+(defun xks/flycheck-annotation-save-only-setup ()
+  (add-hook 'after-change-functions
+            #'xks/flycheck-hide-annotations nil t)
+  (add-hook 'after-save-hook
+            #'xks/flycheck-show-annotations nil t))
+
+(add-hook 'c-mode-hook
+          #'xks/flycheck-annotation-save-only-setup)
+(add-hook 'c-ts-mode-hook
+          #'xks/flycheck-annotation-save-only-setup)
+
+(defun xks/c-format-buffer ()
+  (when (derived-mode-p 'c-ts-mode)
+    (eglot-format-buffer)))
+
+(add-hook 'before-save-hook #'xks/c-format-buffer)
+
+(use-package cmake-mode
+  :ensure nil
+  :mode (("CMakeLists\\.txt\\'" . cmake-mode)
+         ("\\.cmake\\'" . cmake-mode)))
+
 ;; END == C ==
 
 ;; == Golang ==
@@ -545,30 +549,30 @@
 ;; End == Odin ==
 
 ;; == Typescript ==
-(use-package prettier
-  :ensure t)
-
-(defun xks/typescript-style ()
-  (setq-local tab-width 2)
-  (setq-local standard-indent 2)
-  (setq-local typescript-ts-mode-indent-offset 2)
-  (setq-local js-indent-level 2)
-  (setq-local evil-shift-width 2)
-  (setq-local indent-tabs-mode nil))
-
-(add-hook 'typescript-ts-mode-hook #'xks/typescript-style)
-(add-hook 'tsx-ts-mode-hook #'xks/typescript-style)
-(add-hook 'js-ts-mode-hook #'xks/typescript-style)
-
-(add-hook 'typescript-ts-mode-hook #'eglot-ensure)
-(add-hook 'tsx-ts-mode-hook #'eglot-ensure)
-
-;; prettier
-(add-hook 'typescript-ts-mode #'prettier-mode)
-(add-hook 'tsx-ts-mode #'prettier-mode)
-
-(add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
-(add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+;; (use-package prettier
+;;   :ensure t)
+;;
+;; (defun xks/typescript-style ()
+;;   (setq-local tab-width 2)
+;;   (setq-local standard-indent 2)
+;;   (setq-local typescript-ts-mode-indent-offset 2)
+;;   (setq-local js-indent-level 2)
+;;   (setq-local evil-shift-width 2)
+;;   (setq-local indent-tabs-mode nil))
+;;
+;; (add-hook 'typescript-ts-mode-hook #'xks/typescript-style)
+;; (add-hook 'tsx-ts-mode-hook #'xks/typescript-style)
+;; (add-hook 'js-ts-mode-hook #'xks/typescript-style)
+;;
+;; (add-hook 'typescript-ts-mode-hook #'eglot-ensure)
+;; (add-hook 'tsx-ts-mode-hook #'eglot-ensure)
+;;
+;; ;; prettier
+;; (add-hook 'typescript-ts-mode #'prettier-mode)
+;; (add-hook 'tsx-ts-mode #'prettier-mode)
+;;
+;; (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
+;; (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
 ;; END == Typescript ==
 
 ;; == Org Mode ==
